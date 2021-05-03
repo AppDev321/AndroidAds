@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
+
         AppData appData = new AppData("ca-app-pub-3940256099942544/6300978111",
                 "ca-app-pub-3940256099942544/1033173712",
                 "ca-app-pub-3940256099942544/2247696110",
@@ -34,12 +35,12 @@ public class MainActivity extends AppCompatActivity {
         AdConfig.getAppData = appData;
 
 
-        adsFullScreen2 = new AdsInterstitial("2", MainActivity.this);
+        adsFullScreen2 = new AdsInterstitial("1", MainActivity.this);
 
         findViewById(R.id.btn_banner).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new AdsBanner("2", MainActivity.this, (RelativeLayout) findViewById(R.id.rel_banner));
+                new AdsBanner("1", MainActivity.this, (RelativeLayout) findViewById(R.id.rel_banner));
             }
         });
 
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btn_native).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new AdsNative("2", MainActivity.this, (FrameLayout) findViewById(R.id.frame_native));
+                new AdsNative("1", MainActivity.this, (FrameLayout) findViewById(R.id.frame_native));
             }
         });
 

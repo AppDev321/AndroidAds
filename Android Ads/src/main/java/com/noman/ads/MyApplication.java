@@ -39,5 +39,6 @@ public class MyApplication extends Application {
         //For Facebook
         AudienceNetworkAds.initialize(this);
 
+
     }
 }
