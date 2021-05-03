@@ -1,4 +1,4 @@
-package com.noman.androidads.admob.fb;
+package com.noman.ads;
 
 public class AppData {
 

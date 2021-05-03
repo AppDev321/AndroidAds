@@ -1,4 +1,4 @@
-package com.noman.androidads.admob.fb;
+package com.noman.ads;
 
 import android.app.Activity;
 import android.content.Intent;

@@ -1,2 +1,3 @@
+include ':Android Ads'
 include ':app'
 rootProject.name = "Ad Network"
