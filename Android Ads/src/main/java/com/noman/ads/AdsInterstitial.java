@@ -9,8 +9,12 @@ import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
 import com.facebook.ads.InterstitialAd;
 import com.facebook.ads.InterstitialAdListener;
-import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+
+import androidx.annotation.NonNull;
 
 public class AdsInterstitial {
     Activity activity;
@@ -18,7 +22,7 @@ public class AdsInterstitial {
     Intent intent = null;
     InterstitialAd facebookInterstitial;
 
-    com.google.android.gms.ads.InterstitialAd adMobInterstitial;
+    com.google.android.gms.ads.interstitial.InterstitialAd adMobInterstitial;
     String adType = "";
 
 /*
@@ -44,7 +48,7 @@ public class AdsInterstitial {
 
     public void loadAd() {
         if (AdConfig.getAppData == null || !NetworkConnectivityReceiver.isConnected()) {
-            openNextActivity();
+            openNextActivity(true);
         } else if (adType.equalsIgnoreCase("1")) {
             adMobeAd();
         } else {
@@ -54,71 +58,53 @@ public class AdsInterstitial {
 
     }
 
-    public void showActivityAd(Intent intent2) {
-        this.intent = intent2;
-        if (AdConfig.getAppData == null || !NetworkConnectivityReceiver.isConnected()) {
-            openNextActivity();
-        } else if (adType.equalsIgnoreCase("1")) {
-
-            if (adMobInterstitial == null || !adMobInterstitial.isLoaded()) {
-
-                if (facebookInterstitial == null || !facebookInterstitial.isAdLoaded()) {
-                    customAd();
-                } else {
-                    this.facebookInterstitial.show();
-                }
-            } else {
-                this.adMobInterstitial.show();
-            }
-        } else {
-
-            if (facebookInterstitial == null || !facebookInterstitial.isAdLoaded()) {
-                if (adMobInterstitial == null || !adMobInterstitial.isLoaded()) {
-                    customAd();
-                } else {
-                    this.adMobInterstitial.show();
-                }
-            } else {
-                this.facebookInterstitial.show();
-            }
-        }
-    }
 
     public void adMobeAd() {
-        com.google.android.gms.ads.InterstitialAd interstitialAd = new com.google.android.gms.ads.InterstitialAd(this.activity);
-        this.adMobInterstitial = interstitialAd;
-        interstitialAd.setAdUnitId("" + AdConfig.getAppData.getAdmobinterstitial());
-        this.adMobInterstitial.loadAd(new AdRequest.Builder().build());
-        this.adMobInterstitial.setAdListener(new AdListener() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+        com.google.android.gms.ads.interstitial.InterstitialAd.load(
+                activity,
+                AdConfig.getAppData.getAdmobinterstitial(),
+                adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull com.google.android.gms.ads.interstitial.InterstitialAd interstitialAd) {
+                        // The mInterstitialAd reference will be null until
+                        // an ad is loaded.
+                        AdsInterstitial.this.adMobInterstitial = interstitialAd;
 
-            @Override // com.google.android.gms.ads.AdListener
-            public void onAdClicked() {
-            }
+                        adMobInterstitial.setFullScreenContentCallback(
+                                new FullScreenContentCallback() {
+                                    @Override
+                                    public void onAdFailedToShowFullScreenContent(com.google.android.gms.ads.AdError adError) {
+                                        AdsInterstitial.this.adMobInterstitial = null;
+                                    }
 
-            @Override // com.google.android.gms.ads.AdListener
-            public void onAdFailedToLoad(int i) {
-            }
+                                    @Override
+                                    public void onAdDismissedFullScreenContent() {
 
-            @Override // com.google.android.gms.ads.AdListener
-            public void onAdLeftApplication() {
-            }
+                                        AdsInterstitial.this.openNextActivity(true);
 
-            @Override // com.google.android.gms.ads.AdListener
-            public void onAdLoaded() {
+                                    }
 
-            }
 
-            @Override // com.google.android.gms.ads.AdListener
-            public void onAdOpened() {
-            }
+                                    @Override
+                                    public void onAdShowedFullScreenContent() {
+                                        AdsInterstitial.this.adMobInterstitial = null;
+                                    }
+                                });
 
-            @Override // com.google.android.gms.ads.AdListener
-            public void onAdClosed() {
-                AdsInterstitial.this.adMobInterstitial.loadAd(new AdRequest.Builder().build());
-                AdsInterstitial.this.openNextActivity();
-            }
-        });
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+
+                        AdsInterstitial.this.adMobInterstitial = null;
+
+
+                    }
+                });
     }
+
 
     public void facebookAd() {
         Activity activity2 = this.activity;
@@ -144,8 +130,8 @@ public class AdsInterstitial {
 
             @Override
             public void onInterstitialDismissed(Ad ad) {
-                AdsInterstitial.this.openNextActivity();
-                AdsInterstitial.this.facebookInterstitial.loadAd();
+                AdsInterstitial.this.openNextActivity(false);
+
             }
 
             @Override
@@ -158,18 +144,54 @@ public class AdsInterstitial {
     }
 
 
-    public void customAd() {
-        openNextActivity();
+    //Ads Calling logic
 
+
+    public void showActivityAd(Intent intent2) {
+        this.intent = intent2;
+        if (AdConfig.getAppData == null || !NetworkConnectivityReceiver.isConnected()) {
+            openNextActivity(true);
+        } else if (adType.equalsIgnoreCase("1")) {
+            if (adMobInterstitial != null) {
+                adMobInterstitial.show(activity);
+            } else {
+                adMobeAd();
+            }
+
+        } else {
+
+            if (facebookInterstitial == null || !facebookInterstitial.isAdLoaded()) {
+                facebookAd();
+            } else {
+                this.facebookInterstitial.show();
+            }
+        }
     }
 
-    public void openNextActivity() {
 
+    //when no Ads data available
+    public void openNextActivity() {
         if (intent != null) {
             this.activity.startActivity(this.intent);
             this.activity.finish();
         }
+    }
 
+
+    //when ads data available
+    public void openNextActivity(boolean isAdmobRequest) {
+
+        if (intent != null) {
+            this.activity.startActivity(this.intent);
+            this.activity.finish();
+        } else {
+            if (isAdmobRequest) {
+                adMobeAd();
+            } else {
+                facebookInterstitial.loadAd();
+            }
+
+        }
     }
 
 

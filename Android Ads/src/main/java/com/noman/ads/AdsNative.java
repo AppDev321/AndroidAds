@@ -1,6 +1,5 @@
 package com.noman.ads;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,24 +16,29 @@ import android.widget.TextView;
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
 import com.facebook.ads.AdOptionsView;
-import com.facebook.ads.NativeAd;
 import com.facebook.ads.NativeAdLayout;
 import com.facebook.ads.NativeAdListener;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdLoader;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.VideoController;
 import com.google.android.gms.ads.VideoOptions;
-import com.google.android.gms.ads.formats.MediaView;
-import com.google.android.gms.ads.formats.NativeAdOptions;
-import com.google.android.gms.ads.formats.UnifiedNativeAd;
-import com.google.android.gms.ads.formats.UnifiedNativeAdView;
+import com.google.android.gms.ads.nativead.MediaView;
+import com.google.android.gms.ads.nativead.NativeAd;
+import com.google.android.gms.ads.nativead.NativeAdOptions;
+import com.google.android.gms.ads.nativead.NativeAdView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * A simple activity class that displays native ad formats.
+ */
 public class AdsNative {
+
+
+    private NativeAd nativeAd;
     Activity activity;
     FrameLayout layout;
     String adType = "";
@@ -59,31 +63,68 @@ public class AdsNative {
         } else {
             if (adType.equalsIgnoreCase("1")) {
                 nativeAdmobe();
-            } else {
+            } else if (adType.equalsIgnoreCase("2")) {
                 nativeFacebook();
+            } else {
+                noAds();
             }
         }
     }
 
-    public void nativeAdmobe() {
-        AdLoader.Builder builder = new AdLoader.Builder(this.activity, AdConfig.getAppData.getAdmobnative());
-        builder.forUnifiedNativeAd(new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
-            @Override
-            public void onUnifiedNativeAdLoaded(UnifiedNativeAd unifiedNativeAd) {
-                UnifiedNativeAdView unifiedNativeAdView = (UnifiedNativeAdView) activity.getLayoutInflater().inflate(R.layout.native_ad_admob, (ViewGroup) null);
-                populateUnifiedNativeAdView(unifiedNativeAd, unifiedNativeAdView);
-                layout.removeAllViews();
-                layout.addView(unifiedNativeAdView);
-            }
-        });
-        builder.withNativeAdOptions(new NativeAdOptions.Builder().setVideoOptions(new VideoOptions.Builder().setStartMuted(true).build()).build());
-        builder.withAdListener(new AdListener() {
+    public void noAds() {
+        FrameLayout frameLayout = this.layout;
+        if (frameLayout != null) {
+            frameLayout.setVisibility(View.GONE);
+        }
+    }
 
-            @Override // com.google.android.gms.ads.AdListener
-            public void onAdFailedToLoad(int i) {
+    private void nativeAdmobe() {
 
-            }
-        }).build().loadAd(new AdRequest.Builder().build());
+
+        AdLoader.Builder builder = new AdLoader.Builder(activity, AdConfig.getAppData.getAdmobnative());
+
+        builder.forNativeAd(
+                new NativeAd.OnNativeAdLoadedListener() {
+                    // OnLoadedListener implementation.
+                    @Override
+                    public void onNativeAdLoaded(NativeAd nativeAd) {
+
+                        // You must call destroy on old ads when you are done with them,
+                        // otherwise you will have a memory leak.
+                        if (AdsNative.this.nativeAd != null) {
+                            AdsNative.this.nativeAd.destroy();
+                        }
+                        AdsNative.this.nativeAd = nativeAd;
+                        NativeAdView adView =
+                                (NativeAdView) activity.getLayoutInflater().inflate(R.layout.native_ad_admob, null);
+                        populateNativeAdView(nativeAd, adView);
+                        layout.removeAllViews();
+                        layout.addView(adView);
+                    }
+                });
+
+        VideoOptions videoOptions =
+                new VideoOptions.Builder().setStartMuted(false).build();
+
+        NativeAdOptions adOptions =
+                new NativeAdOptions.Builder().setVideoOptions(videoOptions).build();
+
+        builder.withNativeAdOptions(adOptions);
+
+        AdLoader adLoader =
+                builder
+                        .withAdListener(
+                                new AdListener() {
+                                    @Override
+                                    public void onAdFailedToLoad(LoadAdError loadAdError) {
+
+
+                                    }
+                                })
+                        .build();
+
+        adLoader.loadAd(new AdRequest.Builder().build());
+
     }
 
     public void nativeFacebook() {
@@ -96,7 +137,7 @@ public class AdsNative {
         nativeAdLayout.setLayoutParams(layoutParams2);
         scrollView.addView(nativeAdLayout);
         Activity activity2 = this.activity;
-        final NativeAd nativeAd = new NativeAd(activity2, "" + AdConfig.getAppData.getFbnative());
+        final com.facebook.ads.NativeAd nativeAd = new com.facebook.ads.NativeAd(activity2, "" + AdConfig.getAppData.getFbnative());
         nativeAd.loadAd(nativeAd.buildLoadAdConfig().withAdListener(new NativeAdListener() {
             @Override
             public void onAdClicked(Ad ad) {
@@ -126,76 +167,7 @@ public class AdsNative {
         }).build());
     }
 
-
-    private void populateUnifiedNativeAdView(UnifiedNativeAd unifiedNativeAd, UnifiedNativeAdView unifiedNativeAdView) {
-        unifiedNativeAdView.setMediaView((MediaView) unifiedNativeAdView.findViewById(R.id.ad_media));
-        unifiedNativeAdView.setHeadlineView(unifiedNativeAdView.findViewById(R.id.ad_headline));
-        unifiedNativeAdView.setBodyView(unifiedNativeAdView.findViewById(R.id.ad_body));
-        unifiedNativeAdView.setCallToActionView(unifiedNativeAdView.findViewById(R.id.ad_call_to_action));
-        unifiedNativeAdView.setIconView(unifiedNativeAdView.findViewById(R.id.ad_app_icon));
-        unifiedNativeAdView.setPriceView(unifiedNativeAdView.findViewById(R.id.ad_price));
-        unifiedNativeAdView.setStarRatingView(unifiedNativeAdView.findViewById(R.id.ad_stars));
-        unifiedNativeAdView.setStoreView(unifiedNativeAdView.findViewById(R.id.ad_store));
-        unifiedNativeAdView.setAdvertiserView(unifiedNativeAdView.findViewById(R.id.ad_advertiser));
-        ((TextView) unifiedNativeAdView.getHeadlineView()).setText(unifiedNativeAd.getHeadline());
-        if (unifiedNativeAd.getBody() == null) {
-            unifiedNativeAdView.getBodyView().setVisibility(View.INVISIBLE);
-        } else {
-            unifiedNativeAdView.getBodyView().setVisibility(View.VISIBLE);
-            ((TextView) unifiedNativeAdView.getBodyView()).setText(unifiedNativeAd.getBody());
-        }
-        if (unifiedNativeAd.getCallToAction() == null) {
-            unifiedNativeAdView.getCallToActionView().setVisibility(View.INVISIBLE);
-        } else {
-            unifiedNativeAdView.getCallToActionView().setVisibility(View.VISIBLE);
-            ((Button) unifiedNativeAdView.getCallToActionView()).setText(unifiedNativeAd.getCallToAction());
-        }
-        if (unifiedNativeAd.getIcon() == null) {
-            unifiedNativeAdView.getIconView().setVisibility(View.GONE);
-        } else {
-            ((ImageView) unifiedNativeAdView.getIconView()).setImageDrawable(unifiedNativeAd.getIcon().getDrawable());
-            unifiedNativeAdView.getIconView().setVisibility(View.VISIBLE);
-        }
-        if (unifiedNativeAd.getPrice() == null) {
-            unifiedNativeAdView.getPriceView().setVisibility(View.INVISIBLE);
-        } else {
-            unifiedNativeAdView.getPriceView().setVisibility(View.VISIBLE);
-            ((TextView) unifiedNativeAdView.getPriceView()).setText(unifiedNativeAd.getPrice());
-        }
-        if (unifiedNativeAd.getStore() == null) {
-            unifiedNativeAdView.getStoreView().setVisibility(View.INVISIBLE);
-        } else {
-            unifiedNativeAdView.getStoreView().setVisibility(View.VISIBLE);
-            ((TextView) unifiedNativeAdView.getStoreView()).setText(unifiedNativeAd.getStore());
-        }
-        if (unifiedNativeAd.getStarRating() == null) {
-            unifiedNativeAdView.getStarRatingView().setVisibility(View.INVISIBLE);
-        } else {
-            ((RatingBar) unifiedNativeAdView.getStarRatingView()).setRating(unifiedNativeAd.getStarRating().floatValue());
-            unifiedNativeAdView.getStarRatingView().setVisibility(View.VISIBLE);
-        }
-        if (unifiedNativeAd.getAdvertiser() == null) {
-            unifiedNativeAdView.getAdvertiserView().setVisibility(View.INVISIBLE);
-        } else {
-            ((TextView) unifiedNativeAdView.getAdvertiserView()).setText(unifiedNativeAd.getAdvertiser());
-            unifiedNativeAdView.getAdvertiserView().setVisibility(View.VISIBLE);
-        }
-        unifiedNativeAdView.setNativeAd(unifiedNativeAd);
-        VideoController videoController = unifiedNativeAd.getVideoController();
-        if (videoController.hasVideoContent()) {
-            videoController.setVideoLifecycleCallbacks(new VideoController.VideoLifecycleCallbacks() {
-                /* class com.videoplayer.hdmaxplayer.video.player.saxhdvideoplayer.appmanage.ads.AdsNative.AnonymousClass5 */
-
-                @Override // com.google.android.gms.ads.VideoController.VideoLifecycleCallbacks
-                public void onVideoEnd() {
-                    super.onVideoEnd();
-                }
-            });
-        }
-    }
-
-
-    private void inflateAd(NativeAd nativeAd, NativeAdLayout nativeAdLayout, Activity activity2) {
+    private void inflateAd(com.facebook.ads.NativeAd nativeAd, NativeAdLayout nativeAdLayout, Activity activity2) {
         nativeAd.unregisterView();
         int i = View.VISIBLE;
         LinearLayout linearLayout = (LinearLayout) LayoutInflater.from(activity2).inflate(R.layout.native_ad_fb, (ViewGroup) nativeAdLayout, false);
@@ -224,12 +196,98 @@ public class AdsNative {
         nativeAd.registerViewForInteraction(linearLayout, mediaView2, mediaView, arrayList);
     }
 
+    private void populateNativeAdView(NativeAd nativeAd, NativeAdView adView) {
+        // Set the media view.
+        adView.setMediaView((MediaView) adView.findViewById(R.id.ad_media));
 
-    @SuppressLint("WrongConstant")
-    public void noAds() {
-        FrameLayout frameLayout = this.layout;
-        if (frameLayout != null) {
-            frameLayout.setVisibility(View.GONE);
+        // Set other ad assets.
+        adView.setHeadlineView(adView.findViewById(R.id.ad_headline));
+        adView.setBodyView(adView.findViewById(R.id.ad_body));
+        adView.setCallToActionView(adView.findViewById(R.id.ad_call_to_action));
+        adView.setIconView(adView.findViewById(R.id.ad_app_icon));
+        adView.setPriceView(adView.findViewById(R.id.ad_price));
+        adView.setStarRatingView(adView.findViewById(R.id.ad_stars));
+        adView.setStoreView(adView.findViewById(R.id.ad_store));
+        adView.setAdvertiserView(adView.findViewById(R.id.ad_advertiser));
+
+        // The headline and mediaContent are guaranteed to be in every NativeAd.
+        ((TextView) adView.getHeadlineView()).setText(nativeAd.getHeadline());
+        adView.getMediaView().setMediaContent(nativeAd.getMediaContent());
+
+        // These assets aren't guaranteed to be in every NativeAd, so it's important to
+        // check before trying to display them.
+        if (nativeAd.getBody() == null) {
+            adView.getBodyView().setVisibility(View.INVISIBLE);
+        } else {
+            adView.getBodyView().setVisibility(View.VISIBLE);
+            ((TextView) adView.getBodyView()).setText(nativeAd.getBody());
+        }
+
+        if (nativeAd.getCallToAction() == null) {
+            adView.getCallToActionView().setVisibility(View.INVISIBLE);
+        } else {
+            adView.getCallToActionView().setVisibility(View.VISIBLE);
+            ((Button) adView.getCallToActionView()).setText(nativeAd.getCallToAction());
+        }
+
+        if (nativeAd.getIcon() == null) {
+            adView.getIconView().setVisibility(View.GONE);
+        } else {
+            ((ImageView) adView.getIconView()).setImageDrawable(
+                    nativeAd.getIcon().getDrawable());
+            adView.getIconView().setVisibility(View.VISIBLE);
+        }
+
+        if (nativeAd.getPrice() == null) {
+            adView.getPriceView().setVisibility(View.INVISIBLE);
+        } else {
+            adView.getPriceView().setVisibility(View.VISIBLE);
+            ((TextView) adView.getPriceView()).setText(nativeAd.getPrice());
+        }
+
+        if (nativeAd.getStore() == null) {
+            adView.getStoreView().setVisibility(View.INVISIBLE);
+        } else {
+            adView.getStoreView().setVisibility(View.VISIBLE);
+            ((TextView) adView.getStoreView()).setText(nativeAd.getStore());
+        }
+
+        if (nativeAd.getStarRating() == null) {
+            adView.getStarRatingView().setVisibility(View.INVISIBLE);
+        } else {
+            ((RatingBar) adView.getStarRatingView())
+                    .setRating(nativeAd.getStarRating().floatValue());
+            adView.getStarRatingView().setVisibility(View.VISIBLE);
+        }
+
+        if (nativeAd.getAdvertiser() == null) {
+            adView.getAdvertiserView().setVisibility(View.INVISIBLE);
+        } else {
+            ((TextView) adView.getAdvertiserView()).setText(nativeAd.getAdvertiser());
+            adView.getAdvertiserView().setVisibility(View.VISIBLE);
+        }
+
+        // This method tells the Google Mobile Ads SDK that you have finished populating your
+        // native ad view with this native ad.
+        adView.setNativeAd(nativeAd);
+
+        // Get the video controller for the ad. One will always be provided, even if the ad doesn't
+        // have a video asset.
+        VideoController vc = nativeAd.getMediaContent().getVideoController();
+
+        // Updates the UI to say whether or not this ad has a video asset.
+        if (vc.hasVideoContent()) {
+
+            vc.setVideoLifecycleCallbacks(new VideoController.VideoLifecycleCallbacks() {
+                @Override
+                public void onVideoEnd() {
+
+
+                    super.onVideoEnd();
+                }
+            });
         }
     }
+
+
 }
