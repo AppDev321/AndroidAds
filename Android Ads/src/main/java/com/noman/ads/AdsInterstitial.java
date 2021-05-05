@@ -51,7 +51,7 @@ public class AdsInterstitial {
             openNextActivity(true);
         } else if (adType.equalsIgnoreCase("1")) {
             adMobeAd();
-        } else {
+        } else if (adType.equalsIgnoreCase("2")) {
             facebookAd();
         }
 

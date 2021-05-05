@@ -41,8 +41,10 @@ String adType="";
             noAds();
         } else if (adType.equalsIgnoreCase("1")) {
             bannerAdAdmob();
-        } else {
+        } else if (adType.equalsIgnoreCase("2")) {
             bannerAdFacebook();
+        } else {
+            noAds();
         }
 
     }
