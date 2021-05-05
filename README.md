@@ -5,7 +5,7 @@
 
 ```sh
 
-implementation 'com.github.AppDev321:AndroidAds:1.0.2'
+implementation 'com.github.AppDev321:AndroidAds:1.+'
 ```
 2: Add in root build.gradle in allprojects tag
 ```sh
