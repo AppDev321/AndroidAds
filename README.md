@@ -1,13 +1,5 @@
 ## For Native/Banner/Interstitial
-> Note: `For including Native ads you Download the code and add it in your project as a module ` 
 
-Download Library project add in your build.gradle
-```sh
-implementation project(path: ':Android Ads')
-
- ```
-
-## For Banner/Interstitial
 
 <b>1: Add in build.gradle
 
