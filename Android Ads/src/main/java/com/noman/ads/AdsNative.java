@@ -38,15 +38,15 @@ import java.util.List;
 public class AdsNative {
 
 
+    private NativeAd nativeAd;
     Activity activity;
     FrameLayout layout;
     String adType = "";
-    private NativeAd nativeAd;
 
 
     //Calling method
 
-    //  new AdsNative(this, (FrameLayout) findViewById(com.noman.ads.R.id.fl_adplaceholder));
+    //  new AdsNative(this, (FrameLayout) findViewById(R.id.fl_adplaceholder));
 
 
     public AdsNative(String adType, Activity activity2, FrameLayout layoutNativeAd) {
@@ -96,7 +96,7 @@ public class AdsNative {
                         }
                         AdsNative.this.nativeAd = nativeAd;
                         NativeAdView adView =
-                                (NativeAdView) activity.getLayoutInflater().inflate(com.noman.ads.R.layout.native_ad_admob, null);
+                                (NativeAdView) activity.getLayoutInflater().inflate(R.layout.native_ad_admob, null);
                         populateNativeAdView(nativeAd, adView);
                         layout.removeAllViews();
                         layout.addView(adView);
@@ -170,20 +170,20 @@ public class AdsNative {
     private void inflateAd(com.facebook.ads.NativeAd nativeAd, NativeAdLayout nativeAdLayout, Activity activity2) {
         nativeAd.unregisterView();
         int i = View.VISIBLE;
-        LinearLayout linearLayout = (LinearLayout) LayoutInflater.from(activity2).inflate(com.noman.ads.R.layout.native_ad_fb, (ViewGroup) nativeAdLayout, false);
+        LinearLayout linearLayout = (LinearLayout) LayoutInflater.from(activity2).inflate(R.layout.native_ad_fb, (ViewGroup) nativeAdLayout, false);
         nativeAdLayout.addView(linearLayout);
-        LinearLayout linearLayout2 = (LinearLayout) linearLayout.findViewById(com.noman.ads.R.id.ad_choices_container);
+        LinearLayout linearLayout2 = (LinearLayout) linearLayout.findViewById(R.id.ad_choices_container);
         AdOptionsView adOptionsView = new AdOptionsView(activity2, nativeAd, nativeAdLayout);
         linearLayout2.removeAllViews();
         linearLayout2.addView(adOptionsView, View.VISIBLE);
-        com.facebook.ads.MediaView mediaView = (com.facebook.ads.MediaView) linearLayout.findViewById(com.noman.ads.R.id.native_ad_icon);
-        TextView textView = (TextView) linearLayout.findViewById(com.noman.ads.R.id.native_ad_title);
-        com.facebook.ads.MediaView mediaView2 = (com.facebook.ads.MediaView) linearLayout.findViewById(com.noman.ads.R.id.native_ad_media);
-        TextView textView2 = (TextView) linearLayout.findViewById(com.noman.ads.R.id.native_ad_sponsored_label);
-        Button button = (Button) linearLayout.findViewById(com.noman.ads.R.id.native_ad_call_to_action);
+        com.facebook.ads.MediaView mediaView = (com.facebook.ads.MediaView) linearLayout.findViewById(R.id.native_ad_icon);
+        TextView textView = (TextView) linearLayout.findViewById(R.id.native_ad_title);
+        com.facebook.ads.MediaView mediaView2 = (com.facebook.ads.MediaView) linearLayout.findViewById(R.id.native_ad_media);
+        TextView textView2 = (TextView) linearLayout.findViewById(R.id.native_ad_sponsored_label);
+        Button button = (Button) linearLayout.findViewById(R.id.native_ad_call_to_action);
         textView.setText(nativeAd.getAdvertiserName());
-        ((TextView) linearLayout.findViewById(com.noman.ads.R.id.native_ad_body)).setText(nativeAd.getAdBodyText());
-        ((TextView) linearLayout.findViewById(com.noman.ads.R.id.native_ad_social_context)).setText(nativeAd.getAdSocialContext());
+        ((TextView) linearLayout.findViewById(R.id.native_ad_body)).setText(nativeAd.getAdBodyText());
+        ((TextView) linearLayout.findViewById(R.id.native_ad_social_context)).setText(nativeAd.getAdSocialContext());
         if (!nativeAd.hasCallToAction()) {
             i = View.INVISIBLE;
         }
@@ -198,17 +198,17 @@ public class AdsNative {
 
     private void populateNativeAdView(NativeAd nativeAd, NativeAdView adView) {
         // Set the media view.
-        adView.setMediaView((MediaView) adView.findViewById(com.noman.ads.R.id.ad_media));
+        adView.setMediaView((MediaView) adView.findViewById(R.id.ad_media));
 
         // Set other ad assets.
-        adView.setHeadlineView(adView.findViewById(com.noman.ads.R.id.ad_headline));
-        adView.setBodyView(adView.findViewById(com.noman.ads.R.id.ad_body));
-        adView.setCallToActionView(adView.findViewById(com.noman.ads.R.id.ad_call_to_action));
-        adView.setIconView(adView.findViewById(com.noman.ads.R.id.ad_app_icon));
-        adView.setPriceView(adView.findViewById(com.noman.ads.R.id.ad_price));
-        adView.setStarRatingView(adView.findViewById(com.noman.ads.R.id.ad_stars));
-        adView.setStoreView(adView.findViewById(com.noman.ads.R.id.ad_store));
-        adView.setAdvertiserView(adView.findViewById(com.noman.ads.R.id.ad_advertiser));
+        adView.setHeadlineView(adView.findViewById(R.id.ad_headline));
+        adView.setBodyView(adView.findViewById(R.id.ad_body));
+        adView.setCallToActionView(adView.findViewById(R.id.ad_call_to_action));
+        adView.setIconView(adView.findViewById(R.id.ad_app_icon));
+        adView.setPriceView(adView.findViewById(R.id.ad_price));
+        adView.setStarRatingView(adView.findViewById(R.id.ad_stars));
+        adView.setStoreView(adView.findViewById(R.id.ad_store));
+        adView.setAdvertiserView(adView.findViewById(R.id.ad_advertiser));
 
         // The headline and mediaContent are guaranteed to be in every NativeAd.
         ((TextView) adView.getHeadlineView()).setText(nativeAd.getHeadline());
